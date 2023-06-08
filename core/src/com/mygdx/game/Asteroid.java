@@ -6,35 +6,32 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.Random;
 
 public class Asteroid {
-    private final Sprite asteroid;
-    private final BorderCrossingLimiter borderCrossingLimiter;
-   // private Rectangle asteroidCollider;
-    private Polygon asteroidCollider;
+    private final Sprite asteroid = new Sprite(createTexture());
+    private final BorderCrossingLimiter borderCrossingLimiter = new BorderCrossingLimiter();
+    private final Polygon asteroidCollider = new Polygon(new float[]{
+            0,
+            0,
+            asteroid.getWidth(),
+            0,
+            asteroid.getWidth(),
+            asteroid.getHeight(),
+            0,
+            asteroid.getHeight()
+    });
     private static final float speed = 100f;
-    private final Vector2 position;
-    private final ShapeRenderer shapeRenderer;
+    private final Vector2 position = new Vector2();
+    private final ShapeRenderer shapeRenderer = new ShapeRenderer();
     private Vector2 direction;
-    private final int screenWidth;
-    private final int screenHeight;
+    private final int screenWidth = Gdx.graphics.getWidth();
+    ;
+    private final int screenHeight = Gdx.graphics.getHeight();
 
-    public Asteroid () {
-        screenWidth = Gdx.graphics.getWidth();
-        screenHeight = Gdx.graphics.getHeight();
-
-        String[] fileNames = {"meteorBrown_med3.png", "meteorBrown_small1.png", "meteorGrey_med2.png", "meteorGrey_small2.png"};
-        int randomIndex = new Random().nextInt(fileNames.length);
-        String filePath = "PNG/Meteors/"+fileNames[randomIndex];
-        Texture texture = new Texture(filePath);
-        borderCrossingLimiter = new BorderCrossingLimiter();
-        asteroid = new Sprite(texture);
-        shapeRenderer = new ShapeRenderer();
-        position = new Vector2();
+    public Asteroid() {
         initCollider();
         setStartPosition();
         setRandomDirection();
@@ -69,8 +66,15 @@ public class Asteroid {
         direction.nor();
     }
 
+    public void restrictCrossBorder() {
+        borderCrossingLimiter.restrictCrossBorder(position);
+    }
+
+    public Polygon getRectangle() {
+        return asteroidCollider;
+    }
+
     private void initCollider() {
-        asteroidCollider = new Polygon(new float[]{0,0,asteroid.getWidth(),0, asteroid.getWidth(), asteroid.getHeight(), 0, asteroid.getHeight()});
         asteroidCollider.setOrigin(asteroid.getWidth() / 2, asteroid.getHeight() / 2);
 //        asteroidCollider = new Rectangle();
 //        asteroidCollider.height = asteroid.getHeight();
@@ -83,11 +87,10 @@ public class Asteroid {
         position.set(randomX, randomY);
     }
 
-    public void restrictCrossBorder() {
-        borderCrossingLimiter.restrictCrossBorder(position);
-    }
-
-    public Polygon getRectangle() {
-        return asteroidCollider;
+    private Texture createTexture() {
+        String[] fileNames = {"meteorBrown_med3.png", "meteorBrown_small1.png", "meteorGrey_med2.png", "meteorGrey_small2.png"};
+        int randomIndex = new Random().nextInt(fileNames.length);
+        String filePath = "PNG/Meteors/" + fileNames[randomIndex];
+        return new Texture(filePath);
     }
 }

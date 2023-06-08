@@ -3,26 +3,18 @@ package com.mygdx.game;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.utils.Array;
 
 public class Projectile {
 
-    private final Sprite projectile;
     private Polygon polygon;
-
+    private final Sprite projectile = new Sprite(new Texture("PNG/Lasers/laserBlue01.png"));
     private float directionX;
     private float directionY;
-    private final ShapeRenderer shapeRenderer;
+    private final ShapeRenderer shapeRenderer = new ShapeRenderer();
 
     public Projectile() {
-        shapeRenderer = new ShapeRenderer();
-        //projectileCollider = new Rectangle();
-        Texture projectileTexture = new Texture("PNG/Lasers/laserBlue01.png");
-        projectile = new Sprite(projectileTexture);
         initCollider();
     }
 
@@ -52,6 +44,7 @@ public class Projectile {
         shapeRenderer.polygon(polygon.getTransformedVertices());
         shapeRenderer.end();
     }
+
     public void update(float deltaTime, float speed) {
         projectile.translate(directionX * speed * deltaTime, directionY * speed * deltaTime);
         polygon.setPosition(projectile.getX(), projectile.getY());
