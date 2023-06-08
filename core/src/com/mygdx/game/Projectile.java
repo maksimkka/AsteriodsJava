@@ -7,18 +7,16 @@ import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.Array;
 
 public class Projectile {
 
     private final Sprite projectile;
-    private Rectangle projectileCollider;
-    Polygon polygon;
+    private Polygon polygon;
 
     private float directionX;
     private float directionY;
     private final ShapeRenderer shapeRenderer;
-    Affine2 transform = new Affine2();
-
 
     public Projectile() {
         shapeRenderer = new ShapeRenderer();
@@ -32,9 +30,18 @@ public class Projectile {
         return projectile;
     }
 
+    public Polygon getPolygon() {
+        return polygon;
+    }
+
+//    public Array<Polygon> getPolygons() {
+//        return polygons;
+//    }
+
     public void setPosition(float x, float y, float rotation) {
         projectile.setPosition(x, y);
         projectile.setRotation(rotation);
+        polygon.setRotation(rotation);
         directionX = MathUtils.cosDeg(rotation + 90);
         directionY = MathUtils.sinDeg(rotation + 90);
     }
@@ -42,13 +49,12 @@ public class Projectile {
     public void renderShapeRenderer() {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(0, 1, 0, 1);
-        Rectangle rectangle = projectileCollider;
-        shapeRenderer.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+        shapeRenderer.polygon(polygon.getTransformedVertices());
         shapeRenderer.end();
     }
     public void update(float deltaTime, float speed) {
         projectile.translate(directionX * speed * deltaTime, directionY * speed * deltaTime);
-        projectileCollider.setPosition(projectile.getX(), projectile.getY());
+        polygon.setPosition(projectile.getX(), projectile.getY());
     }
 
     public boolean collidesWithEnemy() {
@@ -62,9 +68,7 @@ public class Projectile {
     }
 
     private void initCollider() {
-        //polygon = new Polygon(new float[]{0,0,projectileCollider.width,0,projectileCollider.width,projectileCollider.height,0,projectileCollider.height});
-        projectileCollider = new Rectangle();
-        projectileCollider.height = projectile.getHeight();
-        projectileCollider.width = projectile.getWidth();
+        polygon = new Polygon(new float[]{0,0,projectile.getWidth(),0, projectile.getWidth(), projectile.getHeight(), 0, projectile.getHeight()});
+        polygon.setOrigin(projectile.getWidth() / 2, projectile.getHeight() / 2);
     }
 }

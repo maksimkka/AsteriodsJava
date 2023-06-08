@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
@@ -13,7 +14,8 @@ import java.util.Random;
 public class Asteroid {
     private final Sprite asteroid;
     private final BorderCrossingLimiter borderCrossingLimiter;
-    private Rectangle asteroidCollider;
+   // private Rectangle asteroidCollider;
+    private Polygon asteroidCollider;
     private static final float speed = 100f;
     private final Vector2 position;
     private final ShapeRenderer shapeRenderer;
@@ -45,8 +47,9 @@ public class Asteroid {
     public void renderShapeRenderer() {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(0, 1, 0, 1);
-        Rectangle rectangle = asteroidCollider;
-        shapeRenderer.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+        shapeRenderer.polygon(asteroidCollider.getTransformedVertices());
+        //Rectangle rectangle = asteroidCollider;
+        //shapeRenderer.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
         shapeRenderer.end();
     }
 
@@ -67,9 +70,11 @@ public class Asteroid {
     }
 
     private void initCollider() {
-        asteroidCollider = new Rectangle();
-        asteroidCollider.height = asteroid.getHeight();
-        asteroidCollider.width = asteroid.getWidth();
+        asteroidCollider = new Polygon(new float[]{0,0,asteroid.getWidth(),0, asteroid.getWidth(), asteroid.getHeight(), 0, asteroid.getHeight()});
+        asteroidCollider.setOrigin(asteroid.getWidth() / 2, asteroid.getHeight() / 2);
+//        asteroidCollider = new Rectangle();
+//        asteroidCollider.height = asteroid.getHeight();
+//        asteroidCollider.width = asteroid.getWidth();
     }
 
     private void setStartPosition() {
@@ -82,7 +87,7 @@ public class Asteroid {
         borderCrossingLimiter.restrictCrossBorder(position);
     }
 
-    public Rectangle getRectangle() {
+    public Polygon getRectangle() {
         return asteroidCollider;
     }
 }

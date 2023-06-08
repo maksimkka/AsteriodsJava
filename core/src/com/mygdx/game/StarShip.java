@@ -5,13 +5,16 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 
 public class StarShip {
     private final Sprite starShip;
-    private final Rectangle starShipCollider;
+    //private final Rectangle starShipCollider;
+    private Polygon starShipCollider;
+
     private final BorderCrossingLimiter borderCrossingLimiter;
     private static final float speed = 100f;
     private final Vector2 position;
@@ -25,7 +28,8 @@ public class StarShip {
         shapeRenderer = new ShapeRenderer();
         position = new Vector2();
         originPosition = new Vector2();
-        starShipCollider = new Rectangle();
+        //starShipCollider = new Rectangle();
+        //starShipCollider = new Polygon();
         borderCrossingLimiter = new BorderCrossingLimiter();
 
         starShip.setPosition((float) Gdx.graphics.getWidth() / 2, (float) Gdx.graphics.getHeight() / 2);
@@ -44,8 +48,11 @@ public class StarShip {
     public void renderShapeRenderer() {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(0, 1, 0, 1);
-        Rectangle rectangle = starShipCollider;
-        shapeRenderer.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+        //Rectangle rectangle = starShipCollider;
+        //Polygon rectangle = starShipCollider;
+        shapeRenderer.polygon(starShipCollider.getTransformedVertices());
+
+        //shapeRenderer.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
         shapeRenderer.end();
     }
 
@@ -65,10 +72,12 @@ public class StarShip {
     }
 
     private void initCollider() {
-        starShipCollider.x = starShip.getX();
-        starShipCollider.y = starShip.getY();
-        starShipCollider.height = starShip.getHeight();
-        starShipCollider.width = starShip.getWidth();
+        starShipCollider = new Polygon(new float[]{0,0,starShip.getWidth(),0, starShip.getWidth(), starShip.getHeight(), 0, starShip.getHeight()});
+        starShipCollider.setOrigin(starShip.getWidth() / 2, starShip.getHeight() / 2);
+//        starShipCollider.x = starShip.getX();
+//        starShipCollider.y = starShip.getY();
+//        starShipCollider.height = starShip.getHeight();
+//        starShipCollider.width = starShip.getWidth();
     }
 
     public void moveForward(float deltaTime) {
@@ -133,7 +142,7 @@ public class StarShip {
         currentHP = 3;
     }
 
-    public Rectangle getRectangle() {
+    public Polygon getRectangle() {
         return starShipCollider;
     }
 }

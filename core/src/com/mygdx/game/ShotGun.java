@@ -2,21 +2,31 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.utils.Array;
 
 public class ShotGun {
     private final Array<Projectile> projectilesPool;
     private final Array<Projectile> activeProjectiles;
+    //private final Array<Polygon> polygons;
 
     public ShotGun() {
         projectilesPool = new Array<>();
         activeProjectiles = new Array<>();
+        //polygons = new Array<>();
 
         for (int i = 0; i < 10; i++) {
             projectilesPool.add(new Projectile());
         }
     }
 
+//    public Array<Polygon> getPolygons() {
+//        return polygons;
+//    }
+
+    public Array<Projectile> getActiveProjectiles() {
+        return activeProjectiles;
+    }
     public void render(SpriteBatch batch) {
         for (Projectile projectile : activeProjectiles) {
             projectile.getProjectile().draw(batch);
@@ -35,6 +45,7 @@ public class ShotGun {
         projectile.setPosition(x, y, playerShipRotation);
 
         activeProjectiles.add(projectile);
+        //polygons.add(projectile.getPolygon());
     }
 
     public void update(float deltaTime) {

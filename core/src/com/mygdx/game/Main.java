@@ -29,7 +29,7 @@ public class Main extends ApplicationAdapter {
         isButtonPressed = false;
         asteroidsSpawner = new AsteroidsSpawner();
 
-        collisionHandler = new CollisionHandler(starShip, asteroidsSpawner);
+        collisionHandler = new CollisionHandler(starShip, asteroidsSpawner, shotGun);
 
         inputProcessor = new StarshipInputProcessor(starShip);
         Gdx.input.setInputProcessor(inputProcessor);
