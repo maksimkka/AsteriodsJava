@@ -3,17 +3,21 @@ package com.mygdx.game;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
 
 public class Projectile {
 
     private final Sprite projectile;
     private Rectangle projectileCollider;
+    Polygon polygon;
+
     private float directionX;
     private float directionY;
     private final ShapeRenderer shapeRenderer;
-
+    Affine2 transform = new Affine2();
 
 
     public Projectile() {
@@ -58,9 +62,9 @@ public class Projectile {
     }
 
     private void initCollider() {
+        //polygon = new Polygon(new float[]{0,0,projectileCollider.width,0,projectileCollider.width,projectileCollider.height,0,projectileCollider.height});
         projectileCollider = new Rectangle();
         projectileCollider.height = projectile.getHeight();
         projectileCollider.width = projectile.getWidth();
-        //projectileCollider.
     }
 }

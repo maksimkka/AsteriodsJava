@@ -14,6 +14,7 @@ public class Main extends ApplicationAdapter {
     private ShotGun shotGun;
     private AsteroidsSpawner asteroidsSpawner;
     private CollisionHandler collisionHandler;
+    private StarshipInputProcessor inputProcessor;
     private Background background;
     private boolean isButtonPressed;
 
@@ -26,10 +27,12 @@ public class Main extends ApplicationAdapter {
         starShip = new StarShip();
         background = new Background();
         isButtonPressed = false;
-
         asteroidsSpawner = new AsteroidsSpawner();
 
         collisionHandler = new CollisionHandler(starShip, asteroidsSpawner);
+
+        inputProcessor = new StarshipInputProcessor(starShip);
+        Gdx.input.setInputProcessor(inputProcessor);
     }
 
     @Override
