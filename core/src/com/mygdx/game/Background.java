@@ -15,4 +15,8 @@ public class Background {
         batch.draw(background, 0, 0, screenWidth, screenHeight);
         batch.end();
     }
+
+    public void dispose() {
+        background.dispose();
+    }
 }

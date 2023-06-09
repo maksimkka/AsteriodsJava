@@ -1,41 +1,53 @@
-package com.mygdx.game;
+package com.mygdx.game.Starhip;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.MathUtils;
+import com.mygdx.game.projectile.ActiveProjectileController;
+import com.mygdx.game.asteroid.AsteroidsSpawner;
+import com.mygdx.game.BorderCrossingLimiter;
+import com.mygdx.game.Score;
 
 public class StarShip {
-    private final Sprite sprite = new Sprite(new Texture("PNG/playerShip1_green.png"));
-    private Polygon starShipCollider = new Polygon();
+    private static final float SPEED = 100f;
+    private static final float TURN_ANGLE_RADIUS = 90f;
+    private static final int MAX_HP = 3;
+    private final Texture texture = new Texture("PNG/playerShip1_green.png");
+    private final Sprite sprite = new Sprite(texture);
+    private final Polygon starShipCollider = new Polygon(new float[]{
+            0,
+            0,
+            sprite.getWidth(),
+            0,
+            sprite.getWidth(),
+            sprite.getHeight(),
+            0,
+            sprite.getHeight()
+    });
     private final BorderCrossingLimiter borderCrossingLimiter = new BorderCrossingLimiter();
-    private static final float speed = 100f;
     private final Vector2 position = new Vector2();
     private final Vector2 originPosition = new Vector2();
-    private final ShapeRenderer shapeRenderer = new ShapeRenderer();
     private final ShotGun shotGun;
-    private int currentHP;
+    private final Score score;
+    private int currentHP = MAX_HP;
 
-    private final StarshipRotateListener rotateListener  = new StarshipRotateListener() {
-        @Override
-        public void rotate(Vector2 position) {
-            rotateTowards(position);
-        }
-    };
+    private final StarshipRotateListener rotateListener = this::rotateTowards;
 
-    public StarShip(ShotGun shotGun) {
+    public StarShip(ShotGun shotGun, Score score) {
         this.shotGun = shotGun;
-        sprite.setPosition((float) Gdx.graphics.getWidth() / 2, (float) Gdx.graphics.getHeight() / 2);
-        position.set((float) Gdx.graphics.getWidth() / 2, (float) Gdx.graphics.getHeight() / 2);
+        this.score = score;
+        float halfWidth = (float) Gdx.graphics.getWidth() / 2;
+        float halfHeight = (float) Gdx.graphics.getHeight() / 2;
+        sprite.setPosition(halfWidth, halfHeight);
+        position.set(halfWidth, halfHeight);
         sprite.setOriginCenter();
         sprite.setOriginBasedPosition(position.x, position.y);
         originPosition.set(sprite.getX(), sprite.getOriginY());
-        currentHP = 3;
         initCollider();
     }
 
@@ -49,7 +61,6 @@ public class StarShip {
 
     public void render(SpriteBatch batch) {
         sprite.draw(batch);
-        renderShapeRenderer();
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
             moveForward(Gdx.graphics.getDeltaTime());
         }
@@ -64,18 +75,7 @@ public class StarShip {
 
         restrictCrossBorder();
 
-        shotGun.render(batch, this);
-    }
-
-    public void renderShapeRenderer() {
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(0, 1, 0, 1);
-        //Rectangle rectangle = starShipCollider;
-        //Polygon rectangle = starShipCollider;
-        shapeRenderer.polygon(starShipCollider.getTransformedVertices());
-
-        //shapeRenderer.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-        shapeRenderer.end();
+        shotGun.update( this);
     }
 
     public float getRotation() {
@@ -86,35 +86,34 @@ public class StarShip {
         return position;
     }
 
-    public void handleCollision(AsteroidsSpawner spawner) {
+    public void handleCollision(AsteroidsSpawner spawner, ActiveProjectileController activeProjectileController) {
         currentHP--;
         if (currentHP <= 0) {
+            activeProjectileController.resetActiveProjectiles();
             reset();
             spawner.spawnAsteroids();
         }
     }
 
+    public void dispose() {
+        texture.dispose();
+    }
+
     private void rotateTowards(Vector2 mousePosition) {
-        //System.out.println((int)position.x + " " + screenX + " " + (int) position.y + " " + screenY);
         mousePosition.set(mousePosition.x, Gdx.graphics.getHeight() - mousePosition.y);
-        float angle = mousePosition.sub(position).angleDeg() - 90;
+        float angle = mousePosition.sub(position).angleDeg() - TURN_ANGLE_RADIUS;
         sprite.setRotation(angle);
     }
 
     private void initCollider() {
-        starShipCollider = new Polygon(new float[]{0,0,sprite.getWidth(),0, sprite.getWidth(), sprite.getHeight(), 0, sprite.getHeight()});
         starShipCollider.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
-//        starShipCollider.x = starShip.getX();
-//        starShipCollider.y = starShip.getY();
-//        starShipCollider.height = starShip.getHeight();
-//        starShipCollider.width = starShip.getWidth();
+        starShipCollider.setPosition(sprite.getX(), sprite.getY());
     }
 
     private void moveForward(float deltaTime) {
-        float rotation = sprite.getRotation() + 90;
-        float radAngle = MathUtils.degreesToRadians * rotation;
-        float deltaX = MathUtils.cos(radAngle) * speed * deltaTime;
-        float deltaY = MathUtils.sin(radAngle) * speed * deltaTime;
+        float radAngle = MathUtils.degreesToRadians * getRotationAngle();
+        float deltaX = MathUtils.cos(radAngle) * SPEED * deltaTime;
+        float deltaY = MathUtils.sin(radAngle) * SPEED * deltaTime;
 
         position.x += deltaX;
         position.y += deltaY;
@@ -125,10 +124,9 @@ public class StarShip {
     }
 
     private void moveSideLeft(float deltaTime) {
-        float rotation = sprite.getRotation() + 90;
-        float radAngle = MathUtils.degreesToRadians * rotation;
-        float deltaX = -MathUtils.sin(radAngle) * speed * deltaTime;
-        float deltaY = MathUtils.cos(radAngle) * speed * deltaTime;
+        float radAngle = MathUtils.degreesToRadians * getRotationAngle();
+        float deltaX = -MathUtils.sin(radAngle) * SPEED * deltaTime;
+        float deltaY = MathUtils.cos(radAngle) * SPEED * deltaTime;
 
         position.x += deltaX;
         position.y += deltaY;
@@ -138,11 +136,14 @@ public class StarShip {
         starShipCollider.setPosition(sprite.getX(), sprite.getY());
     }
 
+    private float getRotationAngle() {
+        return sprite.getRotation() + TURN_ANGLE_RADIUS;
+    }
+
     private void moveSideRight(float deltaTime) {
-        float rotation = sprite.getRotation() + 90;
-        float radAngle = MathUtils.degreesToRadians * rotation;
-        float deltaX = MathUtils.sin(radAngle) * speed * deltaTime;
-        float deltaY = -MathUtils.cos(radAngle) * speed * deltaTime;
+        float radAngle = MathUtils.degreesToRadians * getRotationAngle();
+        float deltaX = MathUtils.sin(radAngle) * SPEED * deltaTime;
+        float deltaY = -MathUtils.cos(radAngle) * SPEED * deltaTime;
         position.x += deltaX;
         position.y += deltaY;
 
@@ -161,6 +162,7 @@ public class StarShip {
         sprite.setOriginCenter();
         sprite.setOriginBasedPosition(position.x, position.y);
         initCollider();
-        currentHP = 3;
+        currentHP = MAX_HP;
+        score.resetScore();
     }
 }

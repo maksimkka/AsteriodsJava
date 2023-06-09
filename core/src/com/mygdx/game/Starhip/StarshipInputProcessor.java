@@ -1,4 +1,4 @@
-package com.mygdx.game;
+package com.mygdx.game.Starhip;
 
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;

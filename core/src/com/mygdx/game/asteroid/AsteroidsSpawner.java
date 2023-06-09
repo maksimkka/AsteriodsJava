@@ -1,4 +1,4 @@
-package com.mygdx.game;
+package com.mygdx.game.asteroid;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -21,7 +21,6 @@ public class AsteroidsSpawner {
         for (Asteroid asteroid : asteroids) {
             asteroid.render(batch);
         }
-        renderShapeRendererAsteroids();
         moveAsteroids();
         restrictCrossBorderAsteroids();
     }
@@ -37,9 +36,9 @@ public class AsteroidsSpawner {
         asteroids.add(new Asteroid());
     }
 
-    private void renderShapeRendererAsteroids() {
+    public void dispose() {
         for (Asteroid asteroid : asteroids) {
-            asteroid.renderShapeRenderer();
+            asteroid.dispose();
         }
     }
 
